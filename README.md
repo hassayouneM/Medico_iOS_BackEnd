@@ -53,5 +53,3 @@ $ npm install
 $ npm start
 
 ```
-
-## Interfaces 
