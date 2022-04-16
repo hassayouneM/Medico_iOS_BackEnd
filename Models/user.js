@@ -1,54 +1,59 @@
 const mongoose = require('mongoose');
 //
 var bcrypt = require('bcrypt-nodejs');
+const medicine = require('./medicine');
 var pathFolder = './Public/Uploads/';
 
 
 const userSchema = new mongoose.Schema({
-    name: {
+    Name: {
         type: String,
         required: true,
     },
-    email: {
+    Email: {
         type: String,
         required: true,
     },
-    password: {
+    Password: {
         type: String,
         required: true,
     },
-    phone: {
+    Phone: {
         type: Number,
         required: true,
     },
-    address: {
+    Address: {
         type: String,
         default:'',
     },
-    is_assistant: {
+    Is_assistant: {
         type: Boolean,
         default: false,
     },
-    age: {
+    Age: {
         type: Number,
         default:'',
     },
-    blood_type: {
+    Blood_type: {
         type: String,
         default:'',
     },
-    assistant_email: {
+    Assistant_email: {
         type: String,
         default:'',
     },
-    photo: {
+    Photo: {
         type: String,
         default:'',
     },
-    emergency_num: {
+    Emergency_num: {
         type: Number,
         default:''
     },
+    Medicines : {
+        type : [medicine],
+        default : [],
+    }
 },{
     toJSON:{virtuals:true}
 });
