@@ -5,7 +5,7 @@ const medicineSchema = new mongoose.Schema({
         type : String,
         required : true,
     },
-    Catgory : {
+    Category : {
         type:String,
         required: true,
     },
