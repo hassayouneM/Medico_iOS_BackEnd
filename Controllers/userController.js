@@ -127,7 +127,7 @@ function generateUserToken(user) {
 
 //get user by id
 exports.get = async (req, res) => {
-    res.send({ user: await User.findById(req.body._id) })
+    res.send({ user: await User.findById(req.body.id) })
   }
   
 //get all users

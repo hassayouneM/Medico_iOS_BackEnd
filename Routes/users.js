@@ -8,7 +8,7 @@ router.route("/").get(userController.getAll);
 
 router.post("/login", userController.login);
 router.post("/register", userController.register);
-//router.post("/findByEmail",userController.getByEmail)
+router.post("/findById",userController.get)
 
 
 module.exports = router
