@@ -1,114 +1,82 @@
 const mongoose = require('mongoose');
 //
-var bcrypt = require('bcrypt-nodejs');
+const medicine = require('./medicine');
 var pathFolder = './Public/Uploads/';
 
 
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true,
+        default:'',
+    
     },
     email: {
         type: String,
-        required: true,
+        default:'',
+        //required: false,
     },
     password: {
         type: String,
-        required: true,
+        default:'',
+        //required: false,
     },
     phone: {
         type: Number,
-        required: true,
+        default:'',
+        //required: false,
     },
     address: {
         type: String,
         default:'',
+        required : false,
     },
     is_assistant: {
         type: Boolean,
         default: false,
     },
-    age: {
-        type: Number,
-        default:'',
+    birthdate: {
+        type: Date,
+        required : false,
+
     },
     blood_type: {
         type: String,
         default:'',
+        required : false,
+
     },
     assistant_email: {
         type: String,
         default:'',
+        required : false,
+
     },
     photo: {
         type: String,
         default:'',
+        required : false,
+
     },
     emergency_num: {
         type: Number,
-        default:''
+        default:'',
+        required : false,
+
     },
-},{
-    toJSON:{virtuals:true}
-});
+    medicines : [{
+        type : mongoose.Schema.Types.ObjectId,
+        ref: "medicine",
+        default:[],
+        required : false,
 
+    }],
+    isVerfied : {
+        type : Boolean,
+        required : false,
 
-//just trying something 
-userSchema.methods.getUser=function () {
-    return({
-        _id: this._id,
-        name: this.name,
-        email: this.email,
-        phone: this.phone,
-        address: this.address,
-        is_assistant: this.is_assistant,
-        age: this.age,
-        photo: this.photo,
-        pictureProfile:this.pictureProfile,
-        blood_type: this.blood_type,
-        emergency_num: this.emergency_num
-    })
-};
-
-
-userSchema.virtual('pictureProfile').get(function () {
-    if (this.photo !== undefined) {
-    return pathFolder + this.photo;
-    }else{
-        return pathFolder +'avatar.png';
     }
-});
-userSchema.pre('save', function (next) {
-    var user = this;
-    if (this.isModified('password') || this.isNew) {
-        bcrypt.genSalt(10, function (err, salt) {
-            if (err) {
-                return next(err);
-            }
-            bcrypt.hash(user.password, salt, null, function (err, hash) {
-                if (err) {
-                    return next(err);
-                }
-                if (user.password){
-                user.password = hash;
-                }
-                next();
-            });
-        });
-    } else {
-        return next();
-    }
-});
-userSchema.methods.comparePassword = function (passw, cb) {
-    bcrypt.compare(passw, this.password, function (err, isMatch) {
-        if (err) {
-            return cb(err);
-        }
-        cb(null, isMatch);
-    });
-};
 
-//exports.User = mongoose.model('User', userSchema);
-//exports.userSchema = userSchema;
-const User = module.exports = mongoose.model('User', userSchema);
+});
+
+exports.User = mongoose.model('User', userSchema);
+exports.userSchema = userSchema;
