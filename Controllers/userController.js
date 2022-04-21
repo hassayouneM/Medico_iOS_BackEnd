@@ -55,6 +55,7 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email })
   
     if (user && (await bcrypt.compare(password, user.password))) {
+
       const token = generateUserToken(user)
   console.log(user.isVerified)
      // if (!user.isVerified) {
@@ -80,7 +81,7 @@ function generateUserToken(user) {
     })
     
   }
-  
+
   async function doSendConfirmationEmail(email, token, protocol) {
     let port = process.env.PORT || 5000
   
@@ -122,6 +123,32 @@ function generateUserToken(user) {
     })
   }
 
+  //update user
+  exports.updateProfile = async (req, res) =>{
+    //add the photo
+    const { name, email, phone, address, is_assistant, birthdate, blood_type, assistant_email, emergency_num, isVerified } = req.body
+
+  let user = await User.findOneAndUpdate(
+    { email: email },
+    {
+      $set: {
+        name,
+        email,
+        phone,
+        address,
+        is_assistant,
+        birthdate,
+        blood_type,
+        assistant_email,
+        emergency_num,
+        //pictureId: req.file.filename,
+        isVerified
+      },
+    }
+  )
+
+  return res.send({ message: "Profile updated successfully"})
+  }
 
 //************ GET USER BY SOMETHING ***********
 
@@ -136,6 +163,7 @@ exports.get = async (req, res) => {
 }
 
 //get user by email
-//exports.getByEmail = async (req, res) => {
-  //res.send({user: await User.findByEmail( req.body.email)})
-//}
+exports.getByEmail = async (req, res) => {
+  res.send({user: await User.findOne( {email : req.body.email})
+})
+}
