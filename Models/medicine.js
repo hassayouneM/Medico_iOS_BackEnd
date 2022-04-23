@@ -1,31 +1,31 @@
 const mongoose = require('mongoose');
 
 const medicineSchema = new mongoose.Schema({
-    Name : {
+    name : {
         type : String,
         required : true,
     },
-    Category : {
+    category : {
         type:String,
         required: true,
     },
-    Notif_time : {
+    notif_time : {
         type: Date,
         required: true,
     },
-    Photo: {
+    photo: {
         type: String,
         default:'',
     },
-    Quantity : {
+    quantity : {
         type: Number,
         required: true,
     },
-    Until: {
+    until: {
         type:Date,
         required : true
     },
-    BorA :{
+    borA :{
         type: String,
         required:true
     }

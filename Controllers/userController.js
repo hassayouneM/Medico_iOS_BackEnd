@@ -3,14 +3,17 @@ const bcrypt = require("bcrypt")
 const nodemailer = require("nodemailer")
 const os = require("os")
 const {User} = require('../Models/user');
+const {Medicine}  =require('../Models/medicine')
 const res = require("express/lib/response");
+const { response } = require("express");
+const { findOne } = require("../Models/medicine");
 
-//_____________________________________________
-
-
+//**************************************** */
 
 
 exports.register = async (req, res) => {
+
+  // TODO  add photo
     const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, photo, emergency_num, medicines } = req.body;
     
     if (await User.findOne({ email })) {
@@ -36,8 +39,6 @@ exports.register = async (req, res) => {
       // token creation
       const token = generateUserToken(user)
       
-      
-      
       res.status(200).send({
         message: "success",
         user,
@@ -47,7 +48,6 @@ exports.register = async (req, res) => {
       //doSendConfirmationEmail(email, token, req.protocol)
     }
   }
-  //}
 
 exports.login = async (req, res) => {
     const { email, password } = req.body
@@ -58,7 +58,7 @@ exports.login = async (req, res) => {
 
       const token = generateUserToken(user)
   console.log(user.isVerified)
-     // if (!user.isVerified) {
+     //// if (!user.isVerified) {
       if (user.isVerified) {
         res.status(403).send({ user, message: "email non verifié" })
       } else {
@@ -69,9 +69,90 @@ exports.login = async (req, res) => {
     }
   }
   
+ exports.updateProfile = async (req, res) =>{
+  // TODO: add photo
+  const { name, email, phone, address, is_assistant, birthdate, blood_type, assistant_email, emergency_num, isVerified } = req.body
+
+let user = await User.findOneAndUpdate(
+  { email: email },
+  {
+    $set: {
+      name,
+      email,
+      phone,
+      address,
+      is_assistant,
+      birthdate,
+      blood_type,
+      assistant_email,
+      emergency_num,
+      ////pictureId: req.file.filename,
+      isVerified
+    },
+  }
+)
+
+return res.send({ message: "Profile updated successfully", user})
+}
+
+exports.getPatients = async(req, res)=>{
+  let assistant_email  =req.body.assistant_email
+  User.find({
+    assistant_email : assistant_email
+  }).then(response =>{
+    res.json({response})
+  }).catch(console.error(response => res.json({message : "Could not show patients list"})))
+}
+
+exports.getMedicines = async(req, res) =>{
+ 
+  let patient = await User.findOne({email : req.body.email})
+  medicines = patient.medicines
+
+  res.status(200).send({  
+    medicines : await patient.medicines
+  }).catch(console.error(response => res.json({message : "Could not show medicines list"})))
+  
+}
+
+exports.AddMedecine = async(res,req)=>{
+  let medecine = req.body.medecine
+  User.findByIdAndUpdate(
+    {_id :req.body.id},
+    {$push:{medicines:medicine}},
+    function (error, success) {
+      if (error) {
+          console.log(error);
+      } else {
+          console.log(success);
+      }
+  }
+  )
+
+}
+//************ GET USER BY SOMETHING ***********
+//#region 
+//get user by id
+exports.get = async (req, res) => {
+  res.send({ user: await User.findById(req.body.id) })
+}
+
+//get all users
+exports.getAll = async (req, res) => {
+  res.send({ users: await User.find() })
+}
+
+//get user by email
+exports.getByEmail = async (req, res) => {
+res.send({user: await User.findOne( {email : req.body.email})
+})
+}
+//#endregion
+
+// ********************* Functions *************
+//#region 
 
 
-  ///// FUNCTIONS ---------------------------------------------------------
 
 function generateUserToken(user) {
 
@@ -123,47 +204,5 @@ function generateUserToken(user) {
     })
   }
 
-  //update user
-  exports.updateProfile = async (req, res) =>{
-    //add the photo
-    const { name, email, phone, address, is_assistant, birthdate, blood_type, assistant_email, emergency_num, isVerified } = req.body
+ //#endregion
 
-  let user = await User.findOneAndUpdate(
-    { email: email },
-    {
-      $set: {
-        name,
-        email,
-        phone,
-        address,
-        is_assistant,
-        birthdate,
-        blood_type,
-        assistant_email,
-        emergency_num,
-        //pictureId: req.file.filename,
-        isVerified
-      },
-    }
-  )
-
-  return res.send({ message: "Profile updated successfully"})
-  }
-
-//************ GET USER BY SOMETHING ***********
-
-//get user by id
-exports.get = async (req, res) => {
-    res.send({ user: await User.findById(req.body.id) })
-  }
-  
-//get all users
-  exports.getAll = async (req, res) => {
-    res.send({ users: await User.find() })
-}
-
-//get user by email
-exports.getByEmail = async (req, res) => {
-  res.send({user: await User.findOne( {email : req.body.email})
-})
-}
