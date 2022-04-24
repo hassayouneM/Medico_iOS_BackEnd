@@ -8,6 +8,9 @@ const res = require("express/lib/response");
 const { response } = require("express");
 const { findOne } = require("../Models/medicine");
 
+
+
+
 //**************************************** */
 
 
@@ -16,7 +19,8 @@ exports.register = async (req, res) => {
   // TODO  add photo
     const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, photo, emergency_num, medicines } = req.body;
     
-    if (await User.findOne({ email })) {
+    const verifUser = await User.findOne({ email })
+    if (verifUser) {
       res.status(403).send({ message: "User already exist !" })
     } else {
       let user = await new User({
@@ -31,7 +35,7 @@ exports.register = async (req, res) => {
         assistant_email,
         photo,
         emergency_num,
-        isVerified: true,
+        isVerified: false,
         medicines,
       }).save()
 
@@ -39,13 +43,14 @@ exports.register = async (req, res) => {
       // token creation
       const token = generateUserToken(user)
       
+      sendConfirmationEmail(email, token);
+
       res.status(200).send({
         message: "success",
         user,
-        Token: jwt.verify(token, process.env.JWT_SECRET),
+        Token: jwt.verify(token, process.env.JWT_KEY),
       })
       
-      //doSendConfirmationEmail(email, token, req.protocol)
     }
   }
 
@@ -58,9 +63,9 @@ exports.login = async (req, res) => {
 
       const token = generateUserToken(user)
   console.log(user.isVerified)
-     //// if (!user.isVerified) {
-      if (user.isVerified) {
-        res.status(403).send({ user, message: "email non verifié" })
+      if (!user.isVerified) {
+      ////if (user.isVerified) {
+        res.status(200).send({ user, message: "email non verifié" })
       } else {
         res.status(200).send({ token, user, message: "success" })
       }
@@ -104,6 +109,7 @@ exports.getPatients = async(req, res)=>{
   }).catch(console.error(response => res.json({message : "Could not show patients list"})))
 }
 
+// ! still not tested with medicines added
 exports.getMedicines = async(req, res) =>{
  
   let patient = await User.findOne({email : req.body.email})
@@ -115,6 +121,7 @@ exports.getMedicines = async(req, res) =>{
   
 }
 
+// ! still not working
 exports.AddMedecine = async(res,req)=>{
   let medecine = req.body.medecine
   User.findByIdAndUpdate(
@@ -130,6 +137,57 @@ exports.AddMedecine = async(res,req)=>{
   )
 
 }
+
+exports.confirmation = async (req, res) => {
+
+  var token;
+  try {
+    token = jwt.verify(req.params.token, process.env.JWT_KEY)    
+  } catch (e) {
+    return res.status(400).send({ message: 'The verification link may have expired, please resend the email.' });
+  }
+
+  ////User.findById(tokenValue._id, function (err, use) {
+    User.findById(token.user._id, function (err, user) {
+    if (!user) {
+      console.log(!user)
+      return res.status(401).send({ message: 'User does not exist, please register.' });
+    }
+    else
+     if (user.isVerified) {
+      return res.status(200).send({ message: 'This user has already been verified, please login' });
+    }
+    else {
+      user.isVerified = true;
+      user.save(function (err) {
+        if (err) {
+          return res.status(500).send({ message: err.message });
+        }
+        else {
+          return res.status(200).send({ message: 'Your account has been verified' });
+        }
+      });
+    }
+  });
+}
+
+exports.reSendConfirmationEmail = async (req, res) => {
+ 
+  let user= await User.findOne( {email : req.body.email})
+
+  
+  if (user) {
+    // token creation
+     const token = generateUserToken(user)
+      
+     sendConfirmationEmail(req.body.email, token);
+
+    res.status(200).send({ message: "Confirmation email is sent to " + user.email })
+  } else {
+    res.status(404).send({ message: "Utilisateur innexistant" })
+  }
+};  
+
 //************ GET USER BY SOMETHING ***********
 //#region 
 //get user by id
@@ -156,53 +214,52 @@ res.send({user: await User.findOne( {email : req.body.email})
 
 function generateUserToken(user) {
 
-    return jwt.sign({ user }, process.env.JWT_SECRET, {
+    return jwt.sign({ user }, process.env.JWT_KEY, {
       expiresIn: "100000000", // in Milliseconds (3600000 = 1 hour)
       
     })
     
   }
-
-  async function doSendConfirmationEmail(email, token, protocol) {
-    let port = process.env.PORT || 5000
-  
-    sendEmail({
-      from: process.env.GMAIL_USER,
-      to: email,
-      subject: "Confirm your email",
-      html:
-        "<h3>Please confirm your email using this </h3><a href='" +
-        protocol + "://" + os.hostname() + ":" + port + "/user/confirmation/" + token +
-        "'>Link</a>",
-    })
-  }
-
-  function sendEmail(mailOptions) {
+  async function sendConfirmationEmail(email, token) {
+    // create reusable transporter object using the default SMTP transport
     let transporter = nodemailer.createTransport({
-      service: "gmail",
-      user: {
-        user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_PASSWORD,
-      },
-    })
+      service: 'gmail',
+      auth: {
+        user: 'MedicoAppTeam@gmail.com',
+        pass: 'PIMMedicoTeam'
+      }
+    });
   
     transporter.verify(function (error, success) {
       if (error) {
-        console.log(error)
-        console.log("Server not ready")
+        console.log(error);
+        console.log("Server not ready");
       } else {
-        console.log("Server is ready to take our messages")
+        console.log("Server is ready to take our messages");
       }
-    })
+    });
+  
+    const urlDeConfirmation = "http://localhost:3000/users/confirmation/"+ token;
+  
+  
+    const mailOptions = {
+        from: 'MedicoTeam<MedicoAppTeam@gmail.com>',
+      to: email,
+      text: 'For clients with plaintext support only',
+      subject: 'Confirm your email',
+      html: "<h3>Please confirm your email using this  </h3><a href='" + urlDeConfirmation + "'>Link</a>"
+    };
   
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
-        console.log(error)
+        console.log(error);
       } else {
-        console.log("Email sent: " + info.response)
+        console.log('Email sent: ' + info.response);
       }
-    })
-  }
+    });
+  
+}
+
 
  //#endregion
 
