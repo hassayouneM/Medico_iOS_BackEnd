@@ -186,7 +186,68 @@ exports.reSendConfirmationEmail = async (req, res) => {
   } else {
     res.status(404).send({ message: "Utilisateur innexistant" })
   }
-};  
+}
+
+exports.forgetPass = async (req, res) => {
+  const codeDeReinit = req.body.codeDeReinit
+  console.log(codeDeReinit)
+  const user = await User.findOne({ "email": req.body.email });
+
+  if (user) {
+    // token creation
+    const token = generateUserToken(user)
+
+    envoyerEmailReinitialisation(req.body.email, token, codeDeReinit);
+
+    res.status(200).send({ "message": "reinitialisation code is sent to " + user.email })
+  } else {
+    res.status(404).send({ "message": "User not found" })
+  }
+}
+
+exports.resetPass = async (req, res) => {
+  console.log("0")
+  const { email, newPassword } = req.body;
+console.log("1")
+  
+  let user = await User.findOneAndUpdate(
+    { email: email },
+    {
+      $set: {
+        password : await bcrypt.hash(newPassword, 10)
+      }
+    }
+  );
+  console.log("3")
+  res.send({ user });
+}
+
+exports.loginWithSocial = async (req, res) => {
+  const { email, name } = req.body
+
+  if (email === "") {
+    res.status(403).send({ message: "error please provide an email" })
+  } else {
+    var user = await User.findOne({ email })
+    if (user) {
+      console.log("user exists, loging in")
+    } else {
+      console.log("The verification link may have expired, please resend the email")
+
+      user = await new User({
+        email,
+        name,
+        isVerified: true,
+        
+      }).save()
+    }
+
+    // token creation
+    const token = generateUserToken(user)
+
+    res.status(200).send({ message: "success", user, token: token })
+  }
+}
 
 //************ GET USER BY SOMETHING ***********
 //#region 
@@ -209,8 +270,6 @@ res.send({user: await User.findOne( {email : req.body.email})
 
 // ********************* Functions *************
 //#region 
-
-
 
 function generateUserToken(user) {
 
@@ -260,6 +319,40 @@ function generateUserToken(user) {
   
 }
 
+async function envoyerEmailReinitialisation(email, token, codeDeReinit) {
+  // create reusable transporter object using the default SMTP transport
+  let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'MedicoAppTeam@gmail.com',
+      pass: 'PIMMedicoTeam'
+    }
+  });
+
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.log(error);
+      console.log("Server not ready");
+    } else {
+      console.log("Server is ready to take our messages");
+    }
+  });
+
+  const mailOptions = {
+    from: 'MedicoTeam<MedicoAppTeam@gmail.com>',
+    to: email,
+    subject: 'Change password - Medico',
+    html: "<h3>You have requested to reset your password </h3><p>Your reset code is  : <b style='color : blue'>" + codeDeReinit + "</b></p>"
+  };
+
+  transporter.sendMail(mailOptions, function (error, info) {
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent : ' + info.response);
+    }
+  });
+}
 
  //#endregion
 
