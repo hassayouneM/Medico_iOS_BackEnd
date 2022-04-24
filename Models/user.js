@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 //
-const medicine = require('./medicine');
+const Medicine = require('./medicine');
 var pathFolder = './Public/Uploads/';
 
 
@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema({
         required : false,
 
     }],
-    isVerfied : {
+    isVerified : {
         type : Boolean,
         required : false,
 
