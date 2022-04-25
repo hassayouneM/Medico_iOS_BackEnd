@@ -20,9 +20,13 @@ exports.register = async (req, res) => {
     const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, photo, emergency_num, medicines } = req.body;
     
     const verifUser = await User.findOne({ email })
+    
     if (verifUser) {
       res.status(403).send({ message: "User already exist !" })
-    } else {
+    } 
+    if(verifAssistantemail(assistant_email)) {
+      res.status(403).send({ message: "Invalid assistant email !" })
+    }else {
       let user = await new User({
         name ,
         email,
@@ -354,5 +358,13 @@ async function envoyerEmailReinitialisation(email, token, codeDeReinit) {
   });
 }
 
+async function verifAssistantemail(email){
+  const user = await User.findOne({email})
+  if(user.is_assistant){
+    return true
+  }else{
+    return false
+  }
+}
  //#endregion
 
