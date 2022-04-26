@@ -64,11 +64,10 @@ const userSchema = new mongoose.Schema({
 
     },
     medicines : [{
-        type : mongoose.Schema.Types.ObjectId,
-        ref: "medicine",
-        default:[],
-        required : false,
-
+        type : mongoose.Types.ObjectId,
+        // ref: "medicine",
+        // default:[],
+        // required : false,
     }],
     isVerified : {
         type : Boolean,

@@ -3,16 +3,14 @@ const bcrypt = require("bcrypt")
 const nodemailer = require("nodemailer")
 const os = require("os")
 const {User} = require('../Models/user');
-const {Medicine}  =require('../Models/medicine')
+const Medicine  =require('../Models/medicine')
 const res = require("express/lib/response");
 const { response } = require("express");
 const { findOne } = require("../Models/medicine");
-
-
+const medicineController = require('./medicineController')
 
 
 //**************************************** */
-
 
 exports.register = async (req, res) => {
 
@@ -113,7 +111,6 @@ exports.getPatients = async(req, res)=>{
   }).catch(console.error(response => res.json({message : "Could not show patients list"})))
 }
 
-// ! still not tested with medicines added
 exports.getMedicines = async(req, res) =>{
  
   let patient = await User.findOne({email : req.body.email})
@@ -125,17 +122,24 @@ exports.getMedicines = async(req, res) =>{
   
 }
 
-// ! still not working
-exports.AddMedecine = async(res,req)=>{
-  let medecine = req.body.medecine
+exports.AddMedecine = async(req,res)=>{
+  
+  let medicine = await new Medicine({
+    name : req.body.name,
+    category : req.body.category,
+    notif_time: req.body.notif_time,
+    quantity: req.body.quantity,
+    until: req.body.until,
+    borA: req.body.borA,
+}).save()
   User.findByIdAndUpdate(
-    {_id :req.body.id},
-    {$push:{medicines:medicine}},
+    {_id: req.body.id},
+    {$push : {medicines:medicine}},
     function (error, success) {
       if (error) {
-          console.log(error);
+        res.send({ message: "error adding medicine !"})
       } else {
-          console.log(success);
+        res.send({ message: "medicine added successfully !"})
       }
   }
   )
@@ -366,5 +370,6 @@ async function verifAssistantemail(email){
     return false
   }
 }
+
  //#endregion
 

@@ -14,10 +14,12 @@ router.post("/getPatients", userController.getPatients);
 router.post("/forgetPassword",userController.forgetPass);
 router.post("/reSendConfirmationEmail",userController.reSendConfirmationEmail);
 router.post("/loginWithSocial",userController.loginWithSocial);
-////router.post("/getMedecines", userController.getMedicines);
+router.post("/addMedicine",userController.AddMedecine);
+router.post("/getMedecines", userController.getMedicines);
 router.put("/updateProfile",userController.updateProfile);
 router.put("/resetPass",userController.resetPass);
 router.get("/confirmation/:token",userController.confirmation);
+
 
 
 module.exports = router
