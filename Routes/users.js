@@ -15,13 +15,10 @@ router.post("/forgetPassword",userController.forgetPass);
 router.post("/reSendConfirmationEmail",userController.reSendConfirmationEmail);
 router.post("/loginWithSocial",userController.loginWithSocial);
 router.post("/addMedicine",userController.AddMedecine);
-router.post("/getMedecines", userController.getMedicines);
+router.post("/getMedicines", userController.getMedicines);
 router.put("/updateProfile",userController.updateProfile);
 router.put("/resetPass",userController.resetPass);
 router.get("/confirmation/:token",userController.confirmation);
-
-//
-router.post("/getPatientsByAssistant", userController.getPatientsByAssistant);
 
 
 

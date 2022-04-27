@@ -19,14 +19,21 @@ exports.register = async (req, res) => {
     
     const verifUser = await User.findOne({ email })
     
+    if(!is_assistant){
+      
+      if(!(verifAssistantemail(assistant_email))) {
+        
+        res.status(403).send({ message: "Invalid assistant email !" })
+        
+      }
+      
+    }
     if (verifUser) {
       res.status(403).send({ message: "User already exist !" })
-    } if(!is_assistant){
-      if(verifAssistantemail(assistant_email)) {
-        res.status(403).send({ message: "Invalid assistant email !" })
-      }
-    }
-    else {
+    } 
+    if(verifAssistantemail(assistant_email)) {
+      res.status(403).send({ message: "Invalid assistant email !" })
+    }else {
       let user = await new User({
         name ,
         email,
@@ -39,14 +46,15 @@ exports.register = async (req, res) => {
         assistant_email,
         photo,
         emergency_num,
-        isVerified: false,
+        isVerified:false,
+        
         medicines,
-      }).save()
-
+      }
+      ).save()
 
       // token creation
       const token = generateUserToken(user)
-      
+
       sendConfirmationEmail(email, token);
 
       res.status(200).send({
@@ -105,24 +113,17 @@ return res.send({ message: "Profile updated successfully", user})
 }
 
 exports.getPatients = async(req, res)=>{
-  let assistant_email  =req.body.assistant_email
+  let assistant_id  =req.body.id
+  let user = await User.findById(assistant_id)
+
   User.find({
-    assistant_email : assistant_email
+    assistant_email : user.email
   }).then(response =>{
     res.json({response})
   }).catch(console.error(response => res.json({message : "Could not show patients list"})))
 }
 
-exports.getMedicines = async(req, res) =>{
- 
-  let patient = await User.findOne({email : req.body.email})
-  medicines = patient.medicines
 
-  res.status(200).send({  
-    medicines : await patient.medicines
-  }).catch(console.error(response => res.json({message : "Could not show medicines list"})))
-  
-}
 
 exports.AddMedecine = async(req,res)=>{
   
@@ -276,20 +277,6 @@ exports.getByEmail = async (req, res) => {
 res.send({user: await User.findOne( {email : req.body.email})
 })
 }
-
-//NEW******
-//get patients by assistant email
-exports.getPatientsByAssistant = async (req, res) => {
-  //let assistantEmail = req.body.assistantEmail
-  const patients = await User.find({assistant_email: req.body.assistantEmail}).select('_id')
-  
-  if (!patients) {
-      res.status(500).json({message:"no patients"})
-  }
-  res.status(200).send(patients)
-  //res.send({user: await User.findOne( {assistant_email : req.body.assistantEmail})
-}
-
 //#endregion
 
 // ********************* Functions *************
@@ -381,11 +368,7 @@ async function envoyerEmailReinitialisation(email, token, codeDeReinit) {
 async function verifAssistantemail(email){
   const user = await User.findOne({email})
 
-  if(user.is_assistant){
-    return true
-  }else{
-    return false
-  }
+  return(user.is_assistant)
 }
 
  //#endregion
