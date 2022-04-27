@@ -21,10 +21,12 @@ exports.register = async (req, res) => {
     
     if (verifUser) {
       res.status(403).send({ message: "User already exist !" })
-    } 
-    if(verifAssistantemail(assistant_email)) {
-      res.status(403).send({ message: "Invalid assistant email !" })
-    }else {
+    } if(!is_assistant){
+      if(verifAssistantemail(assistant_email)) {
+        res.status(403).send({ message: "Invalid assistant email !" })
+      }
+    }
+    else {
       let user = await new User({
         name ,
         email,
@@ -274,6 +276,20 @@ exports.getByEmail = async (req, res) => {
 res.send({user: await User.findOne( {email : req.body.email})
 })
 }
+
+//NEW******
+//get patients by assistant email
+exports.getPatientsByAssistant = async (req, res) => {
+  //let assistantEmail = req.body.assistantEmail
+  const patients = await User.find({assistant_email: req.body.assistantEmail}).select('_id')
+  
+  if (!patients) {
+      res.status(500).json({message:"no patients"})
+  }
+  res.status(200).send(patients)
+  //res.send({user: await User.findOne( {assistant_email : req.body.assistantEmail})
+}
+
 //#endregion
 
 // ********************* Functions *************
@@ -364,6 +380,7 @@ async function envoyerEmailReinitialisation(email, token, codeDeReinit) {
 
 async function verifAssistantemail(email){
   const user = await User.findOne({email})
+
   if(user.is_assistant){
     return true
   }else{

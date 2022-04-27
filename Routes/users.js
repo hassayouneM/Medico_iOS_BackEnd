@@ -20,6 +20,9 @@ router.put("/updateProfile",userController.updateProfile);
 router.put("/resetPass",userController.resetPass);
 router.get("/confirmation/:token",userController.confirmation);
 
+//
+router.post("/getPatientsByAssistant", userController.getPatientsByAssistant);
+
 
 
 module.exports = router
