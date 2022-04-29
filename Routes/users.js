@@ -19,7 +19,7 @@ router.post("/getMedicines", userController.getMedicines);
 router.put("/updateProfile",userController.updateProfile);
 router.put("/resetPass",userController.resetPass);
 router.get("/confirmation/:token",userController.confirmation);
-
+//router.post("/getAssistantName",userController.getAssistantName);
 
 
 module.exports = router

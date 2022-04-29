@@ -11,7 +11,7 @@ const medicineSchema = new mongoose.Schema({
     },
     notif_time : {
         type: Date,
-        required: true,
+        //required: true,
     },
     photo: {
         type: String,
@@ -23,7 +23,7 @@ const medicineSchema = new mongoose.Schema({
     },
     until: {
         type:Date,
-        required : true
+        //required : true
     },
     borA :{
         type: String,

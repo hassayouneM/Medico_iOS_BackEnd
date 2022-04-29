@@ -64,8 +64,36 @@ const userSchema = new mongoose.Schema({
 
     },
     medicines : [{
-        type : mongoose.Types.ObjectId,
-        // ref: "medicine",
+        name : {
+            type : String,
+            required : true,
+        },
+        category : {
+            type:String,
+            required: true,
+        },
+        notif_time : {
+            type: Date,
+            required: true,
+        },
+        photo: {
+            type: String,
+           // default:'',
+        },
+        quantity : {
+            type: Number,
+            required: true,
+        },
+        until: {
+            type:Date,
+            required : true
+        },
+        borA :{
+            type: String,
+            required:true
+        }
+        //type : mongoose.Types.ObjectId,
+         //ref: "medicine",
         // default:[],
         // required : false,
     }],
