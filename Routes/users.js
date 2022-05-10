@@ -20,6 +20,10 @@ router.post("/getMedicines", userController.getMedicines);
 router.put("/updateProfile",userController.updateProfile);
 router.put("/resetPass",userController.resetPass);
 router.get("/confirmation/:token",userController.confirmation);
+
+//get assistant name by email
+router.post("/getNameByEmail",userController.getNameByEmail);
+
 //router.post("/getAssistantName",userController.getAssistantName);
 
 

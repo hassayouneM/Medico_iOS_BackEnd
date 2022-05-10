@@ -300,6 +300,13 @@ exports.getByEmail = async (req, res) => {
 res.send({user: await User.findOne( {email : req.body.email})
 })
 }
+
+//get assistant name by email
+exports.getNameByEmail = async (req, res) => {
+  let assistantName = await User.findOne( {email : req.body.email}).select('name -_id')
+  res.send(assistantName)
+}
+  
 //#endregion
 
 // ********************* Functions *************
