@@ -20,6 +20,11 @@ exports.addMedicine= async(req, res)=>{
     })
 }
 
+//get by id
+
+exports.getById = async(req,res)=>{
+    res.send({medicine : await Medicine.findById(req.body.id)})
+}
 //get all users
 exports.getAll = async(req, res) =>{
     res.send({medicines : await Medicine.find()})

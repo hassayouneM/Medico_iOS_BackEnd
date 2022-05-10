@@ -31,9 +31,7 @@ exports.register = async (req, res) => {
     if (verifUser) {
       res.status(403).send({ message: "User already exist !" })
     } 
-    if(verifAssistantemail(assistant_email)) {
-      res.status(403).send({ message: "Invalid assistant email !" })
-    }else {
+    else {
       let user = await new User({
         name ,
         email,
@@ -123,7 +121,31 @@ exports.getPatients = async(req, res)=>{
   }).catch(console.error(response => res.json({message : "Could not show patients list"})))
 }
 
+exports.getAssistantName = async(req, res) =>{
+  findOne({email : req.body.assistant_email}).select('name').then(response=>{
+    res.json({response})
+  }).catch(console.error(response => res.json({message : "Could not show patients list"})))
+}
 
+//! add catch
+exports.getMedicines = async(req, res)=>{
+
+  // let patient = User.findById(req.body.id)
+  // return res.send(patient.medicines)
+
+  User.findById(req.body.id).select("medicines").then(response=>{
+    res.json({response})
+    }).catch(console.error(response => res.json({message : "Could not show medicines list"})))
+  // let medicines =  await patient.medicines
+  // res.status(200).send({
+  //     medicines : await patient.medicines  })
+    
+ //.catch(console.error(response => res.json({message : "Could not show patients list"})))
+//User.findById(req.body.id).then(response =>{
+
+//})
+
+}
 
 exports.AddMedecine = async(req,res)=>{
   
@@ -259,6 +281,7 @@ exports.loginWithSocial = async (req, res) => {
     res.status(200).send({ message: "success", user, token: token })
   }
 }
+
 
 //************ GET USER BY SOMETHING ***********
 //#region 
