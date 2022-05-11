@@ -149,27 +149,26 @@ exports.getMedicines = async(req, res)=>{
 
 exports.AddMedecine = async(req,res)=>{
   
-  let medicine = await new Medicine({
-    name : req.body.name,
-    category : req.body.category,
-    notif_time: req.body.notif_time,
-    quantity: req.body.quantity,
-    until: req.body.until,
-    borA: req.body.borA,
-}).save()
-  User.findByIdAndUpdate(
-    {_id: req.body.id},
-    {$push : {medicines:medicine}},
-    function (error, success) {
-      if (error) {
-        res.send({ message: "error adding medicine !"})
-      } else {
-        res.send({ message: "medicine added successfully !"})
-      }
-  }
-  )
+var med = { name : req.body.name,
+  category : req.body.category,
+  notif_time: req.body.notif_time,
+  quantity: req.body.quantity,
+  until: req.body.until,
+  borA: req.body.borA,}
 
+  User.findOneAndUpdate(
+    {_id:req.body.id} ,
+    {$push:{
+      medicines : med
+    }},
+    function (error, success) {
+      
+            res.send({ message: "medicine added successfully !"})
+          }
+  )
 }
+
+  
 
 exports.confirmation = async (req, res) => {
 
@@ -400,6 +399,7 @@ async function verifAssistantemail(email){
 
   return(user.is_assistant)
 }
+
 
  //#endregion
 
