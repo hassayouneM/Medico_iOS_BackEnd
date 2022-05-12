@@ -274,11 +274,8 @@ exports.getAll = async (req, res) => {
   res.send({ users: await User.find() })
 }
 
-exports.getAssistantName = async (req, res)=>{
-
-  await User.findOne({email : req.body.email}).then(response =>{
-    res.json({response})
-  }).catch(console.error(response => res.json({message : "error"})))
+exports.getAssistant = async (req, res)=>{
+  res.send({ user: await User.findOne({email : req.body.email})})
   
 }
 //#endregion
