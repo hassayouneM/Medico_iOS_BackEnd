@@ -3,11 +3,9 @@ const bcrypt = require("bcrypt")
 const nodemailer = require("nodemailer")
 const os = require("os")
 const {User} = require('../Models/user');
-const Medicine  =require('../Models/medicine')
 const res = require("express/lib/response");
 const { response } = require("express");
-const { findOne } = require("../Models/medicine");
-const medicineController = require('./medicineController')
+
 
 
 //**************************************** */
@@ -45,7 +43,6 @@ exports.register = async (req, res) => {
         photo,
         emergency_num,
         isVerified:false,
-        
         medicines,
       }
       ).save()
@@ -119,32 +116,6 @@ exports.getPatients = async(req, res)=>{
   }).then(response =>{
     res.json({response})
   }).catch(console.error(response => res.json({message : "Could not show patients list"})))
-}
-
-exports.getAssistantName = async(req, res) =>{
-  findOne({email : req.body.assistant_email}).select('name').then(response=>{
-    res.json({response})
-  }).catch(console.error(response => res.json({message : "Could not show patients list"})))
-}
-
-//! add catch
-exports.getMedicines = async(req, res)=>{
-
-  // let patient = User.findById(req.body.id)
-  // return res.send(patient.medicines)
-
-  User.findById(req.body.id).select("medicines").then(response=>{
-    res.json({response})
-    }).catch(console.error(response => res.json({message : "Could not show medicines list"})))
-  // let medicines =  await patient.medicines
-  // res.status(200).send({
-  //     medicines : await patient.medicines  })
-    
- //.catch(console.error(response => res.json({message : "Could not show patients list"})))
-//User.findById(req.body.id).then(response =>{
-
-//})
-
 }
 
 exports.AddMedecine = async(req,res)=>{
@@ -289,32 +260,6 @@ console.log("1")
   res.send({ user });
 }
 
-exports.loginWithSocial = async (req, res) => {
-  const { email, name } = req.body
-
-  if (email === "") {
-    res.status(403).send({ message: "error please provide an email" })
-  } else {
-    var user = await User.findOne({ email })
-    if (user) {
-      console.log("user exists, loging in")
-    } else {
-      console.log("The verification link may have expired, please resend the email")
-
-      user = await new User({
-        email,
-        name,
-        isVerified: true,
-        
-      }).save()
-    }
-
-    // token creation
-    const token = generateUserToken(user)
-
-    res.status(200).send({ message: "success", user, token: token })
-  }
-}
 
 
 //************ GET USER BY SOMETHING ***********
@@ -329,11 +274,7 @@ exports.getAll = async (req, res) => {
   res.send({ users: await User.find() })
 }
 
-//get user by email
-exports.getByEmail = async (req, res) => {
-res.send({user: await User.findOne( {email : req.body.email})
-})
-}
+
 //#endregion
 
 // ********************* Functions *************
