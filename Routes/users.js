@@ -16,6 +16,8 @@ router.post("/forgetPassword",userController.forgetPass);
 router.post("/reSendConfirmationEmail",userController.reSendConfirmationEmail);
 router.post("/loginWithSocial",userController.loginWithSocial);
 router.post("/addMedicine",userController.AddMedecine);
+router.post("/editMedicine",userController.EditMedecine);
+router.post("/deleteMedicine",userController.deleteMed);
 router.post("/getMedicines", userController.getMedicines);
 router.put("/updateProfile",userController.updateProfile);
 router.put("/resetPass",userController.resetPass);

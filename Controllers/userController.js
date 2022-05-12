@@ -168,7 +168,42 @@ var med = { name : req.body.name,
   )
 }
 
+exports.EditMedecine = async(req,res)=>{
   
+  var med = { name : req.body.name,
+    category : req.body.category,
+    notif_time: req.body.notif_time,
+    quantity: req.body.quantity,
+    until: req.body.until,
+    borA: req.body.borA,}
+
+    User.findOneAndUpdate(
+      {"medicines._id":req.body._id} ,
+      {$set:{
+        medicines : med
+      }},
+      { upsert: true, new: true },
+
+      function (error, success) {
+      
+        res.send({ message: "medicine added successfully !"})
+      }
+    )
+    
+          }
+
+exports.deleteMed = async(req,res)=>{
+  
+
+    User.findOneAndUpdate(
+      {_id : req.body.id} ,
+      {$pull:{
+        'medicines': {_id:req.body._id}
+      }},
+      function (error, success) {
+              res.send({ message: "medicine deleted successfully !"})
+            }
+    )}
 
 exports.confirmation = async (req, res) => {
 
