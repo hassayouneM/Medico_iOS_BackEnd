@@ -3,11 +3,9 @@ const bcrypt = require("bcrypt")
 const nodemailer = require("nodemailer")
 const os = require("os")
 const {User} = require('../Models/user');
-const Medicine  =require('../Models/medicine')
 const res = require("express/lib/response");
 const { response } = require("express");
-const { findOne } = require("../Models/medicine");
-const medicineController = require('./medicineController')
+
 
 
 //**************************************** */
@@ -45,7 +43,6 @@ exports.register = async (req, res) => {
         photo,
         emergency_num,
         isVerified:false,
-        
         medicines,
       }
       ).save()
@@ -121,55 +118,63 @@ exports.getPatients = async(req, res)=>{
   }).catch(console.error(response => res.json({message : "Could not show patients list"})))
 }
 
-exports.getAssistantName = async(req, res) =>{
-  findOne({email : req.body.assistant_email}).select('name').then(response=>{
-    res.json({response})
-  }).catch(console.error(response => res.json({message : "Could not show patients list"})))
-}
-
-//! add catch
-exports.getMedicines = async(req, res)=>{
-
-  // let patient = User.findById(req.body.id)
-  // return res.send(patient.medicines)
-
-  User.findById(req.body.id).select("medicines").then(response=>{
-    res.json({response})
-    }).catch(console.error(response => res.json({message : "Could not show medicines list"})))
-  // let medicines =  await patient.medicines
-  // res.status(200).send({
-  //     medicines : await patient.medicines  })
-    
- //.catch(console.error(response => res.json({message : "Could not show patients list"})))
-//User.findById(req.body.id).then(response =>{
-
-//})
-
-}
-
 exports.AddMedecine = async(req,res)=>{
   
-  let medicine = await new Medicine({
-    name : req.body.name,
+var med = { name : req.body.name,
+  category : req.body.category,
+  notif_time: req.body.notif_time,
+  quantity: req.body.quantity,
+  until: req.body.until,
+  borA: req.body.borA,}
+
+  User.findOneAndUpdate(
+    {_id:req.body.id} ,
+    {$push:{
+      medicines : med
+    }},
+    function (error, success) {
+      
+            res.send({ message: "medicine added successfully !"})
+          }
+  )
+}
+
+exports.EditMedecine = async(req,res)=>{
+  
+  var med = { name : req.body.name,
     category : req.body.category,
     notif_time: req.body.notif_time,
     quantity: req.body.quantity,
     until: req.body.until,
-    borA: req.body.borA,
-}).save()
-  User.findByIdAndUpdate(
-    {_id: req.body.id},
-    {$push : {medicines:medicine}},
-    function (error, success) {
-      if (error) {
-        res.send({ message: "error adding medicine !"})
-      } else {
+    borA: req.body.borA,}
+
+    User.findOneAndUpdate(
+      {"medicines._id":req.body._id} ,
+      {$set:{
+        medicines : med
+      }},
+      { upsert: true, new: true },
+
+      function (error, success) {
+      
         res.send({ message: "medicine added successfully !"})
       }
-  }
-  )
+    )
+    
+          }
 
-}
+exports.deleteMed = async(req,res)=>{
+  
+
+    User.findOneAndUpdate(
+      {_id : req.body.id} ,
+      {$pull:{
+        'medicines': {_id:req.body._id}
+      }},
+      function (error, success) {
+              res.send({ message: "medicine deleted successfully !"})
+            }
+    )}
 
 exports.confirmation = async (req, res) => {
 
@@ -255,32 +260,7 @@ console.log("1")
   res.send({ user });
 }
 
-exports.loginWithSocial = async (req, res) => {
-  const { email, name } = req.body
 
-  if (email === "") {
-    res.status(403).send({ message: "error please provide an email" })
-  } else {
-    var user = await User.findOne({ email })
-    if (user) {
-      console.log("user exists, loging in")
-    } else {
-      console.log("The verification link may have expired, please resend the email")
-
-      user = await new User({
-        email,
-        name,
-        isVerified: true,
-        
-      }).save()
-    }
-
-    // token creation
-    const token = generateUserToken(user)
-
-    res.status(200).send({ message: "success", user, token: token })
-  }
-}
 
 
 //************ GET USER BY SOMETHING ***********
@@ -295,11 +275,7 @@ exports.getAll = async (req, res) => {
   res.send({ users: await User.find() })
 }
 
-//get user by email
-exports.getByEmail = async (req, res) => {
-res.send({user: await User.findOne( {email : req.body.email})
-})
-}
+
 //#endregion
 
 // ********************* Functions *************
@@ -393,6 +369,7 @@ async function verifAssistantemail(email){
 
   return(user.is_assistant)
 }
+
 
  //#endregion
 
