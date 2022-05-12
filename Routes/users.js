@@ -15,6 +15,7 @@ router.post("/reSendConfirmationEmail",userController.reSendConfirmationEmail);
 router.post("/addMedicine",userController.AddMedecine);
 router.post("/editMedicine",userController.EditMedecine);
 router.post("/deleteMedicine",userController.deleteMed);
+router.post("/getAssistantName",userController.getAssistantName);
 router.put("/updateProfile",userController.updateProfile);
 router.put("/resetPass",userController.resetPass);
 router.get("/confirmation/:token",userController.confirmation);

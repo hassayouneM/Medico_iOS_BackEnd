@@ -185,7 +185,6 @@ exports.confirmation = async (req, res) => {
     return res.status(400).send({ message: 'The verification link may have expired, please resend the email.' });
   }
 
-  ////User.findById(tokenValue._id, function (err, use) {
     User.findById(token.user._id, function (err, user) {
     if (!user) {
       console.log(!user)
@@ -275,7 +274,14 @@ exports.getAll = async (req, res) => {
   res.send({ users: await User.find() })
 }
 
+exports.getAssistantName = async (req, res)=>{
 
+  await User.findById(req.body.id).select(name).then(response =>{
+    res.json({response})
+  }).catch(console.error(response => res.json({message : "error"})))
+    
+  
+}
 //#endregion
 
 // ********************* Functions *************
