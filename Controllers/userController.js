@@ -61,6 +61,7 @@ exports.register = async (req, res) => {
       nouvelleuse.photo = req.file.filename;
       nouvelleuse.emergency_num = emergency_num;
       nouvelleuse.medicines = [];
+      nouvelleuse.isVerified = false;
       
       console.log (
         nouvelleuse
