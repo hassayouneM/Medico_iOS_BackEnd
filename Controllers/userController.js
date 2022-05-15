@@ -13,7 +13,6 @@ exports.register = async (req, res) => {
 
   // TODO  add photo
     const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, emergency_num, medicines } = req.body;
-    
 
     const verifUser = await User.findOne({ email })
 
@@ -366,7 +365,6 @@ async function envoyerEmailReinitialisation(email, token, codeDeReinit) {
     }
   });
 }
-
 async function verifAssistantemail(email){
   const user = await User.findOne({email})
 
