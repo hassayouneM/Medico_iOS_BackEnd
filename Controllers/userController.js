@@ -12,7 +12,7 @@ const { response } = require("express");
 exports.register = async (req, res) => {
 
   // TODO  add photo
-    const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, emergency_num, medicines } = req.body;
+    const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, emergency_num, mediciness } = req.body;
 
     const verifUser = await User.findOne({ email })
 
@@ -28,38 +28,60 @@ exports.register = async (req, res) => {
       res.status(403).send({ message: "User already exist !" })
     } 
     else {
-      let user = await new User({
-        name ,
-        email,
-        password: await bcrypt.hash(password, 10),
-        password,
-        phone,
-        address,
-        is_assistant,
-        birthdate,
-        blood_type,
-        assistant_email,
-        photo:req.file.path,
-        emergency_num,
-        photo,
-        isVerified:false,
-        medicines,
-      }
-      ).save()
+      // let user =  new User({
+      //   name ,
+      //   email,
+      //   password: await bcrypt.hash(password, 10),
+      //   phone,
+      //   address,
+      //   is_assistant,
+      //   birthdate,
+      //   blood_type,
+      //   assistant_email,
+      //   photo:req.file.filename,
+      //   emergency_num,
+       
+      //   isVerified:false,
+      //   medicines,
+      // }
+      // ).save()
+
+      let nouvelleuse = new User({});
+      motdepasse= await bcrypt.hash(password, 10),
+
+      nouvelleuse.name = name;
+      nouvelleuse.email = email;
+      nouvelleuse.password = motdepasse;
+      nouvelleuse.phone = phone;
+      nouvelleuse.address = address;
+      nouvelleuse.is_assistant = is_assistant;
+      nouvelleuse.birthdate = birthdate;
+      nouvelleuse.blood_type = blood_type;
+      nouvelleuse.assistant_email = assistant_email;
+      nouvelleuse.photo = req.file.filename;
+      nouvelleuse.emergency_num = emergency_num;
+      nouvelleuse.medicines = [];
+      
+      console.log (
+        nouvelleuse
+      )
+    
+      const token = generateUserToken(nouvelleuse)
+      nouvelleuse.save();
+      
+  
+      res.status(201).send({ message: "success", userss: nouvelleuse,token });
 
       // token creation
-      const token = generateUserToken(user)
+      //const token = generateUserToken(user)
 
       sendConfirmationEmail(email, token);
 
-      res.status(200).send({
-        message: "success",
-        user,
-        Token: jwt.verify(token, process.env.JWT_KEY),
-      })
+     
       
     }
   }
+
 
 exports.login = async (req, res) => {
     const { email, password } = req.body

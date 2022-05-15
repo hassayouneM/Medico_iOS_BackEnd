@@ -28,8 +28,7 @@ app.use(morgan('tiny'));
 app.use("/users", require("./Routes/users"));
 
 //
-var publicDir = require('path').join(__dirname,'/Public/Uploads');
-app.use('/Public/Uploads', express.static(publicDir));
+app.use('/uploads', express.static('uploads'))
 
 
 //Connecting server
