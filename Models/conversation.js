@@ -6,11 +6,11 @@ const ConversationSchema = new mongoose.Schema(
     lastMessageDate : {type: Date}, 
     sender : {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user"
+      ref: "User"
     },
     receiver : {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "user"
+      ref: "User"
     },
   },
   {

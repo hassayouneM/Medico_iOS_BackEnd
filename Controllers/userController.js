@@ -403,3 +403,8 @@ async function verifAssistantemail(email){
 
  //#endregion
 
+
+ //chat stufffff user all
+exports.index = async (req, res) => {
+  res.send({ users: await User.find() })
+}

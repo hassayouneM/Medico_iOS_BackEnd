@@ -27,6 +27,7 @@ app.use(morgan('tiny'));
 // allow to excutes url of web services in such rout
 app.use("/users", require("./Routes/users"));
 app.use("/medicines", require("./Routes/medicines"));
+app.use("/chat", require("./Routes/chats"));
 
 //
 var publicDir = require('path').join(__dirname,'/Public/Uploads');

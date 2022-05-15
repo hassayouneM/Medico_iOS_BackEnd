@@ -26,5 +26,10 @@ router.post("/getNameByEmail",userController.getNameByEmail);
 
 //router.post("/getAssistantName",userController.getAssistantName);
 
+//
+//Grt all user for chartttt
+router.get("/getusers",userController.index);
+
+
 
 module.exports = router
