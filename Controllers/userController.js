@@ -7,16 +7,16 @@ const res = require("express/lib/response");
 const { response } = require("express");
 
 
-
 //**************************************** */
 
 exports.register = async (req, res) => {
 
   // TODO  add photo
-    const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, photo, emergency_num, medicines } = req.body;
+    const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, emergency_num, medicines } = req.body;
     
+
     const verifUser = await User.findOne({ email })
-    
+
     if(!is_assistant){
       
       if(!(verifAssistantemail(assistant_email))) {
@@ -24,7 +24,6 @@ exports.register = async (req, res) => {
         res.status(403).send({ message: "Invalid assistant email !" })
         
       }
-      
     }
     if (verifUser) {
       res.status(403).send({ message: "User already exist !" })
@@ -34,14 +33,16 @@ exports.register = async (req, res) => {
         name ,
         email,
         password: await bcrypt.hash(password, 10),
+        password,
         phone,
         address,
         is_assistant,
         birthdate,
         blood_type,
         assistant_email,
-        photo,
+        photo:req.file.path,
         emergency_num,
+        photo,
         isVerified:false,
         medicines,
       }
