@@ -75,6 +75,9 @@ const userSchema = new mongoose.Schema({
             type: Date,
             required: true,
         },
+        borA : {
+            type: String,
+        },
         photo: {
             type: String,
            // default:'',
@@ -85,17 +88,10 @@ const userSchema = new mongoose.Schema({
         },
         until: {
             type:Date,
-            required : true
-        },
-        borA :{
-            type: String,
-            required:true
-        }
-        //type : mongoose.Types.ObjectId,
          //ref: "medicine",
         // default:[],
         // required : false,
-    }],
+    }}],
     isVerified : {
         type : Boolean,
         required : false,

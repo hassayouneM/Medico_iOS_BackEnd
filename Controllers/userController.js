@@ -66,24 +66,17 @@ exports.register = async (req, res) => {
       console.log (
         nouvelleuse
       )
-    
       const token = generateUserToken(nouvelleuse)
       nouvelleuse.save();
-      
-  
       res.status(201).send({ message: "success", userss: nouvelleuse,token });
 
       // token creation
       //const token = generateUserToken(user)
 
-      sendConfirmationEmail(email, token);
-
-     
+      sendConfirmationEmail(email, token);   
       
     }
   }
-
-
 exports.login = async (req, res) => {
     const { email, password } = req.body
   
@@ -121,7 +114,7 @@ let user = await User.findOneAndUpdate(
       blood_type,
       assistant_email,
       emergency_num,
-      ////pictureId: req.file.filename,
+      photo: req.file.filename,
       isVerified
     },
   }
@@ -143,12 +136,14 @@ exports.getPatients = async(req, res)=>{
 
 exports.AddMedecine = async(req,res)=>{
   
-var med = { name : req.body.name,
+var med = { 
+  name : req.body.name,
   category : req.body.category,
   notif_time: req.body.notif_time,
   quantity: req.body.quantity,
   until: req.body.until,
-  borA: req.body.borA,}
+  borA: req.body.borA,
+  photo : req.file.filename,}
 
   User.findOneAndUpdate(
     {_id:req.body.id} ,
@@ -170,17 +165,24 @@ exports.EditMedecine = async(req,res)=>{
     quantity: req.body.quantity,
     until: req.body.until,
     borA: req.body.borA,}
-
-    User.findOneAndUpdate(
+console.log("--------")
+    User.updateOne(
       {"medicines._id":req.body._id} ,
       {$set:{
-        medicines : med
+        "medicines.$.name": med.name,
+        "medicines.$.category" : med.category,
+        "medicines.$.notif_time" : med.notif_time,
+        "medicines.$.borA" : med.borA,
+        //"medicines.$.photo" : med.photo,
+        "medicines.$.quantity" : med.quantity,
+        "medicines.$.until" : med.until,
+
       }},
-      { upsert: true, new: true },
+     // { upsert: true, new: true },
 
       function (error, success) {
       
-        res.send({ message: "medicine added successfully !"})
+        res.send({ message: "medicine edited successfully !"})
       }
     )
     
@@ -289,6 +291,7 @@ console.log("1")
 //#region 
 //get user by id
 exports.get = async (req, res) => {
+  console.log(req.body.id)
   res.send({ user: await User.findById(req.body.id) })
 }
 
