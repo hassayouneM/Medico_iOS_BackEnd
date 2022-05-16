@@ -4,6 +4,10 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 
+//Swagger implementation
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
+
 require('dotenv/config');
 
 const api = process.env.API_URL;
@@ -52,3 +56,24 @@ mongoose.connect(process.env.CONNECTION_STRING, {
 .catch((err) => {
     console.log(err)
 })
+
+//swagger
+const swaggerOptions = {
+    swaggerDefinition: {
+        info: {
+            title: "MEDICO",
+            description: "MEDICO: mobile application to assist elder people in reminding them to have their medication.",
+            version: "2.0.0",
+            contact: {
+                name: "us via email",
+                email: "medico.for.health@gmail.com"
+            },
+            server: ["http://localhost:3000"],
+        }
+    },
+    apis: ["./Routes/users.js","./Routes/chats.js"]
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
