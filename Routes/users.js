@@ -2,7 +2,8 @@
 const express = require("express")
 const router = express.Router()
 const userController = require("../Controllers/userController")
-
+const multer = require('multer')
+const upload    = require('../middleware/upload')
 
 //GET ALL USER
 /**
@@ -90,7 +91,7 @@ router.post("/login", userController.login);
  *              description: User already exist
  */
 
-router.post("/register", userController.register);
+router.post("/register", upload.single('image'), userController.register);
 
 
 //FIND USER BY ID
@@ -177,7 +178,6 @@ router.post("/getPatients", userController.getPatients);
  *              description: Could not get assistant name
  */
 
-router.post("/getAssistantName",userController.getAssistantName);
 
 
 // FORGET PASSWORD
@@ -270,7 +270,7 @@ router.post("/loginWithSocial",userController.loginWithSocial);
  *          403: 
  *              description: Could not add medicine
  */
-router.post("/addMedicine",userController.AddMedecine);
+router.post("/addMedicine", upload.single('image'),userController.AddMedecine);
 
 
 
@@ -293,7 +293,11 @@ router.post("/addMedicine",userController.AddMedecine);
  *              description: Could not found medicines list
  */
 
-router.post("/getMedicines", userController.getMedicines);
+ router.post("/editMedicine",userController.EditMedecine);
+
+ router.post("/deleteMedicine",userController.deleteMed);
+ router.post("/getAssistant",userController.getAssistant);
+
 
 
 // UPDATE PROFILE
@@ -345,7 +349,7 @@ router.post("/getMedicines", userController.getMedicines);
  *              description: Could not update user
  */
 
-router.put("/updateProfile",userController.updateProfile);
+router.put("/updateProfile", upload.single('image'),userController.updateProfile);
 
 
 // RESET PASSWORD

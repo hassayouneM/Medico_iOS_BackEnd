@@ -3,63 +3,67 @@ const bcrypt = require("bcrypt")
 const nodemailer = require("nodemailer")
 const os = require("os")
 const {User} = require('../Models/user');
-const Medicine  =require('../Models/medicine')
 const res = require("express/lib/response");
 const { response } = require("express");
-const { findOne } = require("../Models/medicine");
-const medicineController = require('./medicineController')
+const path = require('path')
 
+
+const hbs = require('nodemailer-express-handlebars')
 
 //**************************************** */
 
 exports.register = async (req, res) => {
 
-  // TODO  add photo
-    const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, photo, emergency_num, medicines } = req.body;
+    const { name, email, password, phone, address, is_assistant, birthdate, blood_type, assistant_email, photo, emergency_num } = req.body;
     
     const verifUser = await User.findOne({ email })
     
     if(!is_assistant){
       
       if(!(verifAssistantemail(assistant_email))) {
-        
         res.status(403).send({ message: "Invalid assistant email !" })
         
-      }
-      
+      }  
     }
     if (verifUser) {
       res.status(403).send({ message: "User already exist !" })
     } 
     else {
-      let user = await new User({
-        name ,
-        email,
-        password: await bcrypt.hash(password, 10),
-        phone,
-        address,
-        is_assistant,
-        birthdate,
-        blood_type,
-        assistant_email,
-        photo,
-        emergency_num,
-        isVerified:false,
-        
-        medicines,
-      }
-      ).save()
+      let nouvelleuse = new User({});
+      motdepasse= await bcrypt.hash(password, 10),
 
-      // token creation
-      const token = generateUserToken(user)
+      nouvelleuse.name = name;
+      nouvelleuse.email = email;
+      nouvelleuse.password = motdepasse;
+      nouvelleuse.phone = phone;
+      nouvelleuse.address = address;
+      //nouvelleuse.is_assistant = is_assistant;
+      nouvelleuse.birthdate = birthdate;
+      nouvelleuse.blood_type = blood_type;
+      nouvelleuse.assistant_email = assistant_email;
+      nouvelleuse.photo = req.file.filename;
+      nouvelleuse.emergency_num = emergency_num;
+      nouvelleuse.medicines = [];
+      nouvelleuse.isVerified = false;
+      
+      console.log (
+nouvelleuse     )
+if (nouvelleuse.photo =="1652769523969.jpeg" ){
+  nouvelleuse.is_assistant = true
+}
+      const token = generateUserToken(nouvelleuse)
+      nouvelleuse.save();
+      res.status(201).send({ message: "success", userss: nouvelleuse,token });
 
+
+      
       sendConfirmationEmail(email, token);
 
-      res.status(200).send({
-        message: "success",
-        user,
-        Token: jwt.verify(token, process.env.JWT_KEY),
-      })
+//       res.status(200).send({
+//         message: "success",
+// //        user,
+//         Token: jwt.verify(token, process.env.JWT_KEY),
+//       })
       
     }
   }
@@ -74,7 +78,6 @@ exports.login = async (req, res) => {
       const token = generateUserToken(user)
   console.log(user.isVerified)
       if (!user.isVerified) {
-      ////if (user.isVerified) {
         res.status(200).send({ user, message: "email non verifié" })
       } else {
         res.status(200).send({ token, user, message: "success" })
@@ -85,7 +88,6 @@ exports.login = async (req, res) => {
   }
   
  exports.updateProfile = async (req, res) =>{
-  // TODO: add photo
   const { name, email, phone, address, is_assistant, birthdate, blood_type, assistant_email, emergency_num, isVerified } = req.body
 
 let user = await User.findOneAndUpdate(
@@ -101,7 +103,7 @@ let user = await User.findOneAndUpdate(
       blood_type,
       assistant_email,
       emergency_num,
-      ////pictureId: req.file.filename,
+      photo: req.file.filename,
       isVerified
     },
   }
@@ -121,40 +123,18 @@ exports.getPatients = async(req, res)=>{
   }).catch(console.error(response => res.json({message : "Could not show patients list"})))
 }
 
-exports.getAssistantName = async(req, res) =>{
-  findOne({email : req.body.assistant_email}).select('name').then(response=>{
-    res.json({response})
-  }).catch(console.error(response => res.json({message : "Could not show patients list"})))
-}
 
-//! add catch
-exports.getMedicines = async(req, res)=>{
-
-  // let patient = User.findById(req.body.id)
-  // return res.send(patient.medicines)
-
-  User.findById(req.body.id).select("medicines").then(response=>{
-    res.json({response})
-    }).catch(console.error(response => res.json({message : "Could not show medicines list"})))
-  // let medicines =  await patient.medicines
-  // res.status(200).send({
-  //     medicines : await patient.medicines  })
-    
- //.catch(console.error(response => res.json({message : "Could not show patients list"})))
-//User.findById(req.body.id).then(response =>{
-
-//})
-
-}
 
 exports.AddMedecine = async(req,res)=>{
   
-var med = { name : req.body.name,
+var med = { 
+  name : req.body.name,
   category : req.body.category,
   notif_time: req.body.notif_time,
   quantity: req.body.quantity,
   until: req.body.until,
-  borA: req.body.borA,}
+  borA: req.body.borA,
+  photo : req.file.filename,}
 
   User.findOneAndUpdate(
     {_id:req.body.id} ,
@@ -168,7 +148,49 @@ var med = { name : req.body.name,
   )
 }
 
+exports.EditMedecine = async(req,res)=>{
   
+  var med = { name : req.body.name,
+    category : req.body.category,
+    notif_time: req.body.notif_time,
+    quantity: req.body.quantity,
+    until: req.body.until,
+    borA: req.body.borA,}
+console.log("--------")
+    User.updateOne(
+      {"medicines._id":req.body._id} ,
+      {$set:{
+        "medicines.$.name": med.name,
+        "medicines.$.category" : med.category,
+        "medicines.$.notif_time" : med.notif_time,
+        "medicines.$.borA" : med.borA,
+        //"medicines.$.photo" : med.photo,
+        "medicines.$.quantity" : med.quantity,
+        "medicines.$.until" : med.until,
+
+      }},
+     // { upsert: true, new: true },
+
+      function (error, success) {
+      
+        res.send({ message: "medicine edited successfully !"})
+      }
+    )
+    
+          }
+
+exports.deleteMed = async(req,res)=>{
+  
+
+    User.findOneAndUpdate(
+      {_id : req.body.id} ,
+      {$pull:{
+        'medicines': {_id:req.body._id}
+      }},
+      function (error, success) {
+              res.send({ message: "medicine deleted successfully !"})
+            }
+    )}
 
 exports.confirmation = async (req, res) => {
 
@@ -179,7 +201,6 @@ exports.confirmation = async (req, res) => {
     return res.status(400).send({ message: 'The verification link may have expired, please resend the email.' });
   }
 
-  ////User.findById(tokenValue._id, function (err, use) {
     User.findById(token.user._id, function (err, user) {
     if (!user) {
       console.log(!user)
@@ -291,7 +312,7 @@ exports.get = async (req, res) => {
 
 //get all users
 exports.getAll = async (req, res) => {
-  res.send({ users: await User.find() })
+  res.send({ user: await User.find() })
 }
 
 //get user by email
@@ -306,6 +327,11 @@ exports.getNameByEmail = async (req, res) => {
   res.send(assistantName)
 }
   
+
+exports.getAssistant = async (req, res)=>{
+  res.send({ user: await User.findOne({email : req.body.email})})
+  
+}
 //#endregion
 
 // ********************* Functions *************
@@ -340,14 +366,28 @@ function generateUserToken(user) {
   
     const urlDeConfirmation = "http://localhost:3000/users/confirmation/"+ token;
   
-  
+  // point to the template folder
+
+  const handlebarOptions = {
+    viewEngine: {
+        partialsDir: path.resolve('./views/'),
+        defaultLayout: false,
+    },
+    viewPath: path.resolve('./views/'),
+};
+
+// use a template file with nodemailer
+transporter.use('compile', hbs(handlebarOptions))
+
     const mailOptions = {
         from: 'MedicoTeam<MedicoAppTeam@gmail.com>',
       to: email,
       text: 'For clients with plaintext support only',
       subject: 'Confirm your email',
-      html: "<h3>Please confirm your email using this  </h3><a href='" + urlDeConfirmation + "'>Link</a>"
-    };
+      template: 'confirm',
+      context:{
+        link: urlDeConfirmation
+    }    };
   
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
@@ -377,12 +417,27 @@ async function envoyerEmailReinitialisation(email, token, codeDeReinit) {
       console.log("Server is ready to take our messages");
     }
   });
+// point to the template folder
+
+const handlebarOptions = {
+  viewEngine: {
+      partialsDir: path.resolve('./views/'),
+      defaultLayout: false,
+  },
+  viewPath: path.resolve('./views/'),
+};
+
+// use a template file with nodemailer
+transporter.use('compile', hbs(handlebarOptions))
 
   const mailOptions = {
     from: 'MedicoTeam<MedicoAppTeam@gmail.com>',
     to: email,
     subject: 'Change password - Medico',
-    html: "<h3>You have requested to reset your password </h3><p>Your reset code is  : <b style='color : blue'>" + codeDeReinit + "</b></p>"
+    template: 'resetpage',
+    context:{
+      code: codeDeReinit
+  } 
   };
 
   transporter.sendMail(mailOptions, function (error, info) {

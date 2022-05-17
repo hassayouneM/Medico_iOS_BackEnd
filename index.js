@@ -30,12 +30,11 @@ app.use(morgan('tiny'));
 //const usersRoutes = require('./Routes/users');
 // allow to excutes url of web services in such rout
 app.use("/users", require("./Routes/users"));
-app.use("/medicines", require("./Routes/medicines"));
+//app.use("/medicines", require("./Routes/medicines"));
 app.use("/chat", require("./Routes/chats"));
 
 //
-var publicDir = require('path').join(__dirname,'/Public/Uploads');
-app.use('/Public/Uploads', express.static(publicDir));
+app.use('/uploads', express.static("uploads"));
 
 
 //Connecting server

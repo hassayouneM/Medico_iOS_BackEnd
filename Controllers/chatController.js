@@ -1,5 +1,5 @@
-let Message = require("../models/Message")
-let Conversation = require("../models/Conversation")
+let Message = require("../Models/message")
+let Conversation = require("../Models/conversation")
 
 const getAllConversations = async (req, res) => {
     res.send({ conversations: await Conversation.find() })

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 //
-const Medicine = require('./medicine');
 var pathFolder = './Public/Uploads/';
 
 
