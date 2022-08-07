@@ -1,7 +1,5 @@
 # Medico_iOS_BackEnd
 
-This project is an application skeleton for [Node.js](https://nodejs.org/) mobile app.
-
 
 ## Getting Started
 
